@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, View, ScrollView, FlatList, Modal, StyleSheet,TextInput, Button, Alert, PanResponder } from 'react-native';
+import { Text, View, ScrollView, FlatList, Modal, StyleSheet,TextInput, Button, Alert, PanResponder, Share } from 'react-native';
 import { Card, Icon } from 'react-native-elements';
 import { connect } from 'react-redux';
 import { baseUrl } from '../shared/baseUrl';
@@ -24,7 +24,6 @@ function RenderComments(props) {
     const comments = props.comments;
 
     const renderCommentItem = ({ item, index }) => {
-
         return (
             <View key={index} style={{ margin: 10 }}>
                 <Text style={{ fontSize: 14 }}>{item.comment}</Text>
@@ -54,9 +53,23 @@ function RenderDish(props) {
             return false;
     }
 
+    const shareDish =(title, message, url)=>{
+        Share.share({
+            title: title,
+            message: title + ': ' + message + ' ' + url,
+            url: url
+        },
+        {
+            dialogTitle: 'Share'+ title
+        })
+    }
+    
     const panResponder = PanResponder.create({
         onStartShouldSetPanResponder: (e, gestureState) => {
             return true;
+        },
+        onPanResponderGrant: () => {
+            this.view.rubberBand(1000).then(endState => console.log(endState.finished ? 'finished' : 'cancelled'));
         },
         onPanResponderEnd: (e, gestureState) => {
             console.log("pan responder end", gestureState);
@@ -76,6 +89,7 @@ function RenderDish(props) {
     })
 
     const dish = props.dish;
+    
     if (dish != null)
         return (
             <Animatable.View animation="fadeInDown" duration={2000} delay={1000} 
@@ -105,6 +119,13 @@ function RenderDish(props) {
                         type='font-awesome'
                         onPress={() => { props.commentForm() }}
                     />
+                     <Icon
+                            raised
+                            reverse
+                            name='share'
+                            type='font-awesome'
+                            color='#51D2A8'
+                            onPress={() => shareDish(dish.name, dish.description, baseUrl + dish.image)} />
                 </View>
             </Card>
             </Animatable.View>
